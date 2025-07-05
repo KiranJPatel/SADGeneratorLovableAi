@@ -8,6 +8,7 @@ import { Upload, Sparkles, Plus, Download, FileText, Zap, Code2, RefreshCw } fro
 import { ExamplePrompts } from "./ExamplePrompts";
 import { TemplateUpload } from "./TemplateUpload";
 import { OutputViewer } from "./OutputViewer";
+import { PlantUMLEditor } from "./PlantUMLEditor";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/hero-architecture.jpg";
 
@@ -141,116 +142,130 @@ export function ArchitectureGenerator() {
           </div>
         </div>
 
-        {/* Control Panel */}
-        <Card className="shadow-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center space-x-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  <span>Generation Controls</span>
-                </CardTitle>
-                <CardDescription>
-                  Manage examples, templates, and generation settings
-                </CardDescription>
-              </div>
-              <div className="flex space-x-2">
-                <TemplateUpload onTemplateUpload={handleTemplateUpload} />
-                {template && (
-                  <Button variant="outline" size="sm" onClick={handleReset}>
-                    <RefreshCw className="h-4 w-4" />
-                    Reset Template
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {template && (
-              <div className="p-3 bg-accent rounded-lg border">
-                <div className="flex items-center space-x-2">
-                  <FileText className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Custom Template Active</span>
-                  <Badge variant="secondary">Custom</Badge>
-                </div>
-              </div>
-            )}
-            
-            <ExamplePrompts onExampleSelect={handleExampleSelect} />
-          </CardContent>
-        </Card>
-
-        {/* Main Generator */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Input Panel */}
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Plus className="h-5 w-5" />
-                <span>Prompt Input</span>
-              </CardTitle>
-              <CardDescription>
-                Describe your system architecture requirements
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                placeholder="Describe your system architecture... e.g., 'E-commerce platform with microservices, real-time notifications, and machine learning recommendations'"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-[200px] resize-none bg-muted/30 border-border/50 focus:border-primary/50 transition-all"
-              />
-              <Button 
-                onClick={handleGenerate} 
-                disabled={isGenerating || !prompt.trim()}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-                size="lg"
-              >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                    Generating Architecture...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Generate Architecture
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Output Panel */}
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <FileText className="h-5 w-5" />
-                <span>Generated Output</span>
-              </CardTitle>
-              <CardDescription>
-                Architecture documentation and diagrams
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {result ? (
-                <OutputViewer result={result} />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-[400px] text-center space-y-4">
-                  <Zap className="h-16 w-16 text-muted-foreground/50" />
+        {/* Main Content with Tabs */}
+        <Tabs defaultValue="ai-generator" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="ai-generator">AI Architecture Generator</TabsTrigger>
+            <TabsTrigger value="plantuml-editor">PlantUML Editor</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="ai-generator" className="space-y-6">
+            {/* Control Panel */}
+            <Card className="shadow-sm">
+              <CardHeader>
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-lg font-medium text-muted-foreground">
-                      No output generated yet
-                    </p>
-                    <p className="text-sm text-muted-foreground/70">
-                      Enter a prompt and click generate to see results
-                    </p>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      <span>Generation Controls</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Manage examples, templates, and generation settings
+                    </CardDescription>
+                  </div>
+                  <div className="flex space-x-2">
+                    <TemplateUpload onTemplateUpload={handleTemplateUpload} />
+                    {template && (
+                      <Button variant="outline" size="sm" onClick={handleReset}>
+                        <RefreshCw className="h-4 w-4" />
+                        Reset Template
+                      </Button>
+                    )}
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {template && (
+                  <div className="p-3 bg-accent rounded-lg border">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Custom Template Active</span>
+                      <Badge variant="secondary">Custom</Badge>
+                    </div>
+                  </div>
+                )}
+                
+                <ExamplePrompts onExampleSelect={handleExampleSelect} />
+              </CardContent>
+            </Card>
+
+            {/* Main Generator */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Input Panel */}
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Plus className="h-5 w-5" />
+                    <span>Prompt Input</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Describe your system architecture requirements
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    placeholder="Describe your system architecture... e.g., 'E-commerce platform with microservices, real-time notifications, and machine learning recommendations'"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[200px] resize-none bg-muted/30 border-border/50 focus:border-primary/50 transition-all"
+                  />
+                  <Button 
+                    onClick={handleGenerate} 
+                    disabled={isGenerating || !prompt.trim()}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                    size="lg"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        Generating Architecture...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Generate Architecture
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Output Panel */}
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <FileText className="h-5 w-5" />
+                    <span>Generated Output</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Architecture documentation and diagrams
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {result ? (
+                    <OutputViewer result={result} />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-[400px] text-center space-y-4">
+                      <Zap className="h-16 w-16 text-muted-foreground/50" />
+                      <div>
+                        <p className="text-lg font-medium text-muted-foreground">
+                          No output generated yet
+                        </p>
+                        <p className="text-sm text-muted-foreground/70">
+                          Enter a prompt and click generate to see results
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="plantuml-editor">
+            <PlantUMLEditor />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

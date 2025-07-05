@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Download, FileText, Share, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import mermaid from 'mermaid';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface OutputViewerProps {
   result: {
@@ -80,8 +83,8 @@ export function OutputViewer({ result }: OutputViewerProps) {
     }
   };
 
-  const handleDownload = (content: string, filename: string, type: string) => {
-    const blob = new Blob([content], { type: `text/${type}` });
+  const handleDownloadText = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -95,6 +98,93 @@ export function OutputViewer({ result }: OutputViewerProps) {
       title: "Downloaded",
       description: `${filename} has been downloaded.`,
     });
+  };
+
+  const handleDownloadDOCX = async () => {
+    try {
+      // Convert markdown to plain text for DOCX
+      const plainText = result.document
+        .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold formatting
+        .replace(/\*(.*?)\*/g, '$1') // Remove italic formatting
+        .replace(/^-\s+/gm, '• '); // Convert list items
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: plainText.split('\n').filter(line => line.trim()).map(line => 
+            new Paragraph({
+              children: [new TextRun(line)],
+            })
+          ),
+        }],
+      });
+
+      const buffer = await Packer.toBuffer(doc);
+      const blob = new Blob([buffer], { 
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'architecture.docx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "DOCX Downloaded",
+        description: "Architecture document exported as Word document successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export document as DOCX.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      const pdf = new jsPDF();
+      
+      // Convert markdown to plain text and add to PDF
+      const plainText = result.document
+        .replace(/^#{1,6}\s+/gm, '') // Remove markdown headers
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold formatting
+        .replace(/\*(.*?)\*/g, '$1') // Remove italic formatting
+        .replace(/^-\s+/gm, '• '); // Convert list items
+
+      const lines = pdf.splitTextToSize(plainText, 180);
+      pdf.text(lines, 15, 20);
+
+      // If there's a diagram, try to add it
+      if (mermaidRef.current && mermaidRef.current.querySelector('svg')) {
+        try {
+          const canvas = await html2canvas(mermaidRef.current);
+          const imgData = canvas.toDataURL('image/png');
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 10, 10, 190, 100);
+        } catch (diagramError) {
+          console.error('Error adding diagram to PDF:', diagramError);
+        }
+      }
+
+      pdf.save('architecture.pdf');
+
+      toast({
+        title: "PDF Downloaded",
+        description: "Architecture document exported as PDF successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export document as PDF.",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderMarkdown = (markdown: string) => {
@@ -139,14 +229,30 @@ export function OutputViewer({ result }: OutputViewerProps) {
           </TabsTrigger>
         </TabsList>
         
-        <div className="flex space-x-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDownload(result.document, 'architecture.md', 'markdown')}
+            onClick={() => handleDownloadText(result.document, 'architecture.txt')}
           >
             <Download className="h-4 w-4" />
-            Export MD
+            Download Text
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadDOCX}
+          >
+            <Download className="h-4 w-4" />
+            Export DOCX
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadPDF}
+          >
+            <Download className="h-4 w-4" />
+            Export PDF
           </Button>
         </div>
       </div>
