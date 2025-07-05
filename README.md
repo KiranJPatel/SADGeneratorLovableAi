@@ -1,4 +1,5 @@
-# Welcome to your Lovable project
+## Deployed at 
+https://prompt-architect-gen.lovable.app/
 
 ## Project info
 
