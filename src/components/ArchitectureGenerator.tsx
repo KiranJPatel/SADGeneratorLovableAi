@@ -108,18 +108,18 @@ export function ArchitectureGenerator() {
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl material-card p-12 mb-8">
+        <div className="relative overflow-hidden rounded-2xl bg-card border border-border shadow-lg p-12 mb-8">
           <div 
-            className="absolute inset-0 opacity-20 bg-cover bg-center"
+            className="absolute inset-0 opacity-5 bg-cover bg-center"
             style={{ backgroundImage: `url(${heroImage})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-primary-glow/10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/3" />
           <div className="relative z-10 text-center space-y-6">
             <div className="flex items-center justify-center space-x-3">
-              <div className="p-3 rounded-xl bg-primary/20 backdrop-blur-sm">
-                <Zap className="h-10 w-10 text-primary" />
+              <div className="p-3 rounded-xl bg-primary text-primary-foreground shadow-md">
+                <Zap className="h-10 w-10" />
               </div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-primary-glow bg-clip-text text-transparent">
+              <h1 className="text-5xl font-bold text-foreground">
                 AI Architecture Generator
               </h1>
             </div>
@@ -142,7 +142,7 @@ export function ArchitectureGenerator() {
         </div>
 
         {/* Control Panel */}
-        <Card className="material-card">
+        <Card className="shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -183,7 +183,7 @@ export function ArchitectureGenerator() {
         {/* Main Generator */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Input Panel */}
-          <Card className="material-card">
+          <Card className="shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Plus className="h-5 w-5" />
@@ -203,8 +203,7 @@ export function ArchitectureGenerator() {
               <Button 
                 onClick={handleGenerate} 
                 disabled={isGenerating || !prompt.trim()}
-                className="w-full"
-                variant="gradient"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                 size="lg"
               >
                 {isGenerating ? (
@@ -223,7 +222,7 @@ export function ArchitectureGenerator() {
           </Card>
 
           {/* Output Panel */}
-          <Card className="material-card">
+          <Card className="shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <FileText className="h-5 w-5" />

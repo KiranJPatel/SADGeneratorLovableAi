@@ -1,8 +1,5 @@
 # Welcome to your Lovable project
 
-# Project deployed at 
-https://prompt-architect-gen.lovable.app/
-
 ## Project info
 
 **URL**: https://lovable.dev/projects/832144fa-a785-4064-aa14-f4dea2c0d35b
